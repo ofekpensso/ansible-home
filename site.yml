@@ -1,0 +1,30 @@
+---
+- name: Start web page
+  hosts: _webserver
+  become: true
+  vars:
+    my_title: "ofek dynamic server farm"
+  tasks:
+    - name: Install nginx
+      dnf:
+        name: nginx
+        state: latest
+
+    - name: Ensure the service is running
+      service:
+        name: nginx
+        enabled: true
+        state: started
+
+    - name: Create index.html with my name  
+      template:
+        src: ./index.html.j2
+        dest: /usr/share/nginx/html/index.html
+        mode: "0644"
+      notify: Restart nginx   
+
+  handlers:  
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
