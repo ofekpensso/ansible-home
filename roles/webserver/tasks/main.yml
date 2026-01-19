@@ -1,9 +1,11 @@
 ---
 # tasks file for webserver
-- name: Install nginx
+- name: Install required packages
   dnf:
-    name: nginx
+    name: "{{ item }}"     
     state: latest
+    allowerasing: true
+  loop: "{{ server_packages }}"  
 
 - name: Ensure the service is running
   service:
@@ -17,3 +19,10 @@
     dest: /usr/share/nginx/html/index.html
     mode: "0644"
   notify: Restart nginx
+ 
+- name: Create maintenance alert file
+  copy:
+    dest: /usr/share/nginx/html/maintenance.html
+    content: "<h1>Server is under maintenance! 🚧</h1>"
+    mode: "0644"
+  when: enable_maintenance == true     

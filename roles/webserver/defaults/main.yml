@@ -1,3 +1,11 @@
 ---
 # defaults file for webserver
 my_title: "Ofek's Role Based Server"
+
+server_packages:
+  - nginx
+  - git
+  - curl
+  - vim
+
+enable_maintenance: false  
