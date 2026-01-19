@@ -1,0 +1,19 @@
+---
+# tasks file for webserver
+- name: Install nginx
+  dnf:
+    name: nginx
+    state: latest
+
+- name: Ensure the service is running
+  service:
+    name: nginx
+    enabled: true
+    state: started
+
+- name: Deploy dynamic index.html
+  template:
+    src: index.html.j2
+    dest: /usr/share/nginx/html/index.html
+    mode: "0644"
+  notify: Restart nginx
