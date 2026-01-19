@@ -7,5 +7,6 @@ server_packages:
   - git
   - curl
   - vim
+  - python3-pip
 
 enable_maintenance: false  

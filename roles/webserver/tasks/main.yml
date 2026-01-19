@@ -25,4 +25,23 @@
     dest: /usr/share/nginx/html/maintenance.html
     content: "<h1>Server is under maintenance! 🚧</h1>"
     mode: "0644"
-  when: enable_maintenance == true     
+  when: enable_maintenance == true
+
+
+- name: Install Docker Python SDK
+  pip:
+    name:
+      - "urllib3<2.0"
+      - "requests<2.30.0"
+      - docker
+    state: present
+    extra_args: --ignore-installed --force-reinstall
+
+- name: Run a Test Container on port 8080
+  community.docker.docker_container:
+    name: my_test_app
+    image: nginx:alpine       
+    state: started
+    restart_policy: always
+    ports:
+      - "8080:80"             
