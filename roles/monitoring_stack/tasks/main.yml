@@ -1,0 +1,61 @@
+---
+# tasks file for monitoring_stack
+- name: Install python3-pip
+  dnf:
+    name: python3-pip
+    state: present
+
+- name: Install Docker Python SDK with strictly compatible versions
+  pip:
+    name:
+      - "urllib3<2.0"
+      - "requests<2.30.0"
+      - docker
+    state: present
+    extra_args: --ignore-installed --force-reinstall
+- name: Create directory for Docker CLI plugins
+  file:
+    path: /usr/local/lib/docker/cli-plugins
+    state: directory
+    mode: '0755'
+    recurse: yes
+
+- name: Install Docker Compose CLI Plugin manually
+  get_url:
+    url: https://github.com/docker/compose/releases/download/v2.24.1/docker-compose-linux-x86_64
+    dest: /usr/local/lib/docker/cli-plugins/docker-compose
+    mode: '0755'
+- name: Create monitoring directory
+  file:
+    path: /opt/monitoring
+    state: directory
+    mode: '0755'
+
+- name: Deploy Prometheus Configuration
+  template:
+    src: prometheus.yml.j2
+    dest: /opt/monitoring/prometheus.yml
+
+- name: Deploy Docker Compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/monitoring/docker-compose.yml
+
+- name: Create data directories for persistence
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0777'
+  loop:
+    - /opt/monitoring/prometheus_data
+    - /opt/monitoring/grafana_data    
+
+- name: Tear down existing services
+  community.docker.docker_compose_v2:
+    project_src: /opt/monitoring
+    state: absent
+
+- name: Start Monitoring Stack (Prometheus + Grafana)
+  community.docker.docker_compose_v2:
+    project_src: /opt/monitoring
+    state: present

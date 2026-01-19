@@ -1,7 +1,14 @@
 ---
+- name: Configure Monitoring Agent (Node Exporter)
+  hosts: all                       
+  become: true
+  roles:
+    - prometheus.prometheus.node_exporter
+
 - name: Deploy Web Servers
   hosts: _webserver    
   become: true
+  serial: 1
   vars:
    docker_users:
      - ec2-user
@@ -18,5 +25,16 @@
 - name: Deploy Load Balancer
   hosts: _loadbalancer
   become: true
+  vars:
+    docker_users:
+      - ec2-user
+    docker_add_repo: false
+    docker_packages:
+      - docker
+    docker_packages_state: present
+    docker_install_compose_plugin: false
   roles:
-    - loadbalancer  
+    - geerlingguy.docker
+    - loadbalancer 
+    - monitoring_stack
+    - jenkins 

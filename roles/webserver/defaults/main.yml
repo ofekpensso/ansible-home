@@ -1,6 +1,6 @@
 ---
 # defaults file for webserver
-my_title: "Ofek's Role Based Server"
+my_title: "Version 2.0 - Rolling Update!"
 
 server_packages:
   - nginx
